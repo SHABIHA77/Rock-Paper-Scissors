@@ -37,5 +37,5 @@ Rock-Paper-Scissors/
 │
 └── README.md
 
-![HOME PAGE LOOK](<img width="868" height="600" alt="front look" src="https://github.com/user-attachments/assets/d316c5b9-2f6d-409a-9574-98ddaf92ccd0" />
+![HOME PAGE LOOK](front look./screenshots.png>
 )
