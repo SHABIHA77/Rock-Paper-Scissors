@@ -5,11 +5,11 @@ import os
 import winsound
 
 
-# =========================
-# GAME VARIABLES
-# =========================
+# =========================================================
+# GAME DATA
+# =========================================================
 
-choices = ["Rock", "Paper", "Scissors"]
+CHOICES = ["Rock", "Paper", "Scissors"]
 
 player_score = 0
 computer_score = 0
@@ -21,52 +21,113 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SOUND_DIR = os.path.join(BASE_DIR, "sounds")
 
 
-# =========================
+# =========================================================
 # SOUND
-# =========================
+# =========================================================
 
 def play_sound(filename):
+
     sound_path = os.path.join(SOUND_DIR, filename)
 
     if os.path.exists(sound_path):
+
         try:
             winsound.PlaySound(
                 sound_path,
                 winsound.SND_FILENAME | winsound.SND_ASYNC
             )
-        except:
+        except Exception:
             pass
 
 
-# =========================
+# =========================================================
+# RESULT POPUP
+# =========================================================
+
+def show_result_popup(result, player_choice, computer_choice):
+
+    popup = tk.Toplevel(root)
+
+    popup.title("Game Result")
+    popup.geometry("500x400")
+    popup.resizable(False, False)
+    popup.configure(bg="#F4F4F4")
+
+    popup.transient(root)
+    popup.grab_set()
+
+    if result == "win":
+
+        title = "YOU WIN! 🎉"
+        title_color = "#1B8A3A"
+        sound = "Win.mp3"
+
+    elif result == "lose":
+
+        title = "YOU LOSE! 😢"
+        title_color = "#C62828"
+        sound = "Lose.mp3"
+
+    else:
+
+        title = "IT'S A DRAW! 🤝"
+        title_color = "#D68910"
+        sound = "Draw.mp3"
+
+    play_sound(sound)
+
+    tk.Label(
+        popup,
+        text=title,
+        font=("Arial", 30, "bold"),
+        bg="#F4F4F4",
+        fg=title_color
+    ).pack(pady=(50, 25))
+
+    tk.Label(
+        popup,
+        text=f"You chose: {player_choice}",
+        font=("Arial", 15),
+        bg="#F4F4F4",
+        fg="#333333"
+    ).pack(pady=5)
+
+    tk.Label(
+        popup,
+        text=f"Computer chose: {computer_choice}",
+        font=("Arial", 15),
+        bg="#F4F4F4",
+        fg="#333333"
+    ).pack(pady=5)
+
+    tk.Button(
+        popup,
+        text="OK",
+        font=("Arial", 12, "bold"),
+        width=15,
+        height=2,
+        command=popup.destroy
+    ).pack(pady=30)
+
+
+# =========================================================
 # PLAY GAME
-# =========================
+# =========================================================
 
 def play_game(player_choice):
 
-    global player_score, computer_score, draw_score
+    global player_score
+    global computer_score
+    global draw_score
 
     play_sound("Click.mp3")
 
-    computer_choice = random.choice(choices)
-
-    player_choice_label.config(
-        text=f"You chose: {player_choice}"
-    )
-
-    computer_choice_label.config(
-        text=f"Computer chose: {computer_choice}"
-    )
+    computer_choice = random.choice(CHOICES)
 
     if player_choice == computer_choice:
 
         draw_score += 1
-
-        result_label.config(
-            text="IT'S A DRAW! 🤝"
-        )
-
-        play_sound("Draw.mp3")
+        result = "draw"
 
     elif (
         (player_choice == "Rock" and computer_choice == "Scissors")
@@ -77,29 +138,25 @@ def play_game(player_choice):
     ):
 
         player_score += 1
-
-        result_label.config(
-            text="YOU WIN! 🎉"
-        )
-
-        play_sound("Win.mp3")
+        result = "win"
 
     else:
 
         computer_score += 1
-
-        result_label.config(
-            text="YOU LOSE! 😢"
-        )
-
-        play_sound("Lose.mp3")
+        result = "lose"
 
     update_score()
 
+    show_result_popup(
+        result,
+        player_choice,
+        computer_choice
+    )
 
-# =========================
+
+# =========================================================
 # UPDATE SCORE
-# =========================
+# =========================================================
 
 def update_score():
 
@@ -112,38 +169,28 @@ def update_score():
     )
 
 
-# =========================
+# =========================================================
 # RESET GAME
-# =========================
+# =========================================================
 
 def reset_game():
 
-    global player_score, computer_score, draw_score
+    global player_score
+    global computer_score
+    global draw_score
 
     player_score = 0
     computer_score = 0
     draw_score = 0
-
-    player_choice_label.config(
-        text="You chose: -"
-    )
-
-    computer_choice_label.config(
-        text="Computer chose: -"
-    )
-
-    result_label.config(
-        text="MAKE YOUR CHOICE!"
-    )
 
     update_score()
 
     play_sound("Click.mp3")
 
 
-# =========================
+# =========================================================
 # EXIT
-# =========================
+# =========================================================
 
 def exit_game():
 
@@ -156,68 +203,152 @@ def exit_game():
         root.destroy()
 
 
-# =========================
+# =========================================================
 # GIVE FEEDBACK
-# =========================
+# =========================================================
 
-def open_feedback():
+def give_feedback():
 
     feedback_window = tk.Toplevel(root)
 
     feedback_window.title("Give Feedback")
-    feedback_window.geometry("500x400")
+    feedback_window.geometry("550x520")
     feedback_window.resizable(False, False)
     feedback_window.configure(bg="#F4F4F4")
 
-    title = tk.Label(
+    feedback_window.transient(root)
+
+    # -----------------------------------------------------
+    # TITLE
+    # -----------------------------------------------------
+
+    tk.Label(
         feedback_window,
         text="GIVE YOUR FEEDBACK",
-        font=("Arial", 20, "bold"),
+        font=("Arial", 24, "bold"),
         bg="#F4F4F4",
         fg="#222222"
-    )
+    ).pack(pady=(30, 5))
 
-    title.pack(pady=(30, 15))
-
-    instruction = tk.Label(
+    tk.Label(
         feedback_window,
-        text="Tell us what you think about the game:",
+        text="We would love to hear your thoughts!",
         font=("Arial", 12),
         bg="#F4F4F4",
-        fg="#555555"
+        fg="#666666"
+    ).pack(pady=5)
+
+    # -----------------------------------------------------
+    # RATING
+    # -----------------------------------------------------
+
+    tk.Label(
+        feedback_window,
+        text="Your Rating",
+        font=("Arial", 14, "bold"),
+        bg="#F4F4F4",
+        fg="#333333"
+    ).pack(pady=(30, 8))
+
+    selected_rating = tk.IntVar(
+        value=5
     )
 
-    instruction.pack()
+    rating_frame = tk.Frame(
+        feedback_window,
+        bg="#F4F4F4"
+    )
+
+    rating_frame.pack()
+
+    rating_buttons = []
+
+    def select_rating(rating):
+
+        selected_rating.set(rating)
+
+        for i, button in enumerate(
+            rating_buttons,
+            start=1
+        ):
+
+            if i <= rating:
+                button.config(text="★")
+            else:
+                button.config(text="☆")
+
+    for i in range(1, 6):
+
+        button = tk.Button(
+            rating_frame,
+            text="★",
+            font=("Arial", 25),
+            relief="flat",
+            bg="#F4F4F4",
+            fg="#D68910",
+            command=lambda r=i: select_rating(r)
+        )
+
+        button.pack(
+            side="left",
+            padx=3
+        )
+
+        rating_buttons.append(button)
+
+    # -----------------------------------------------------
+    # FEEDBACK TEXT
+    # -----------------------------------------------------
+
+    tk.Label(
+        feedback_window,
+        text="Your Feedback",
+        font=("Arial", 14, "bold"),
+        bg="#F4F4F4",
+        fg="#333333"
+    ).pack(
+        anchor="w",
+        padx=65,
+        pady=(30, 8)
+    )
 
     feedback_box = tk.Text(
         feedback_window,
-        width=50,
+        width=48,
         height=8,
         font=("Arial", 11)
     )
 
-    feedback_box.pack(pady=15)
+    feedback_box.pack()
+
+    # -----------------------------------------------------
+    # SUBMIT
+    # -----------------------------------------------------
 
     def submit_feedback():
 
-        feedback = feedback_box.get(
+        text = feedback_box.get(
             "1.0",
             tk.END
         ).strip()
 
-        if feedback == "":
+        if text == "":
+
             messagebox.showwarning(
                 "Feedback",
-                "Please write your feedback first.",
+                "Please write your feedback.",
                 parent=feedback_window
             )
+
             return
 
-        feedbacks.append(feedback)
+        new_feedback = {
+            "rating": selected_rating.get(),
+            "text": text
+        }
 
-        feedback_box.delete(
-            "1.0",
-            tk.END
+        feedbacks.append(
+            new_feedback
         )
 
         messagebox.showinfo(
@@ -228,118 +359,234 @@ def open_feedback():
 
         feedback_window.destroy()
 
-        view_feedback_button.pack(pady=8)
-
-    submit_button = tk.Button(
+    tk.Button(
         feedback_window,
         text="SUBMIT FEEDBACK",
         font=("Arial", 12, "bold"),
-        width=20,
+        width=24,
         height=2,
         command=submit_feedback
+    ).pack(
+        pady=25
     )
 
-    submit_button.pack()
 
-
-# =========================
+# =========================================================
 # VIEW FEEDBACK
-# =========================
+# =========================================================
 
 def view_feedback():
 
     feedback_window = tk.Toplevel(root)
 
     feedback_window.title("View Feedback")
-    feedback_window.geometry("600x500")
+    feedback_window.geometry("700x620")
     feedback_window.resizable(False, False)
     feedback_window.configure(bg="#F4F4F4")
 
-    title = tk.Label(
+    # -----------------------------------------------------
+    # TITLE
+    # -----------------------------------------------------
+
+    tk.Label(
         feedback_window,
         text="ALL FEEDBACK",
-        font=("Arial", 22, "bold"),
+        font=("Arial", 24, "bold"),
         bg="#F4F4F4",
         fg="#222222"
+    ).pack(
+        pady=(25, 5)
     )
 
-    title.pack(pady=(25, 15))
+    tk.Label(
+        feedback_window,
+        text="What players are saying",
+        font=("Arial", 12),
+        bg="#F4F4F4",
+        fg="#666666"
+    ).pack(
+        pady=5
+    )
+
+    # -----------------------------------------------------
+    # NO FEEDBACK
+    # -----------------------------------------------------
 
     if len(feedbacks) == 0:
 
-        empty_label = tk.Label(
+        tk.Label(
             feedback_window,
             text="No feedback submitted yet.",
-            font=("Arial", 13),
+            font=("Arial", 14),
             bg="#F4F4F4",
             fg="#666666"
+        ).pack(
+            pady=80
         )
-
-        empty_label.pack(pady=40)
 
         return
 
-    feedback_list = tk.Listbox(
+    # -----------------------------------------------------
+    # SCROLL AREA
+    # -----------------------------------------------------
+
+    canvas = tk.Canvas(
         feedback_window,
-        width=65,
-        height=18,
-        font=("Arial", 11)
+        bg="#F4F4F4",
+        highlightthickness=0
     )
 
-    feedback_list.pack(
-        padx=20,
-        pady=10
+    scrollbar = tk.Scrollbar(
+        feedback_window,
+        orient="vertical",
+        command=canvas.yview
     )
 
-    for number, feedback in enumerate(feedbacks, start=1):
+    scroll_frame = tk.Frame(
+        canvas,
+        bg="#F4F4F4"
+    )
 
-        feedback_list.insert(
-            tk.END,
-            f"{number}. {feedback}"
+    scroll_frame.bind(
+        "<Configure>",
+        lambda event: canvas.configure(
+            scrollregion=canvas.bbox("all")
+        )
+    )
+
+    canvas.create_window(
+        (0, 0),
+        window=scroll_frame,
+        anchor="nw",
+        width=660
+    )
+
+    canvas.configure(
+        yscrollcommand=scrollbar.set
+    )
+
+    canvas.pack(
+        side="left",
+        fill="both",
+        expand=True,
+        padx=(20, 0),
+        pady=15
+    )
+
+    scrollbar.pack(
+        side="right",
+        fill="y",
+        pady=15
+    )
+
+    # -----------------------------------------------------
+    # FEEDBACK CARDS
+    # -----------------------------------------------------
+
+    for feedback in feedbacks:
+
+        card = tk.Frame(
+            scroll_frame,
+            bg="white",
+            bd=1,
+            relief="solid"
+        )
+
+        card.pack(
+            fill="x",
+            padx=10,
+            pady=8
+        )
+
+        # Stars
+
+        stars = (
+            "★" * feedback["rating"]
+            +
+            "☆" * (5 - feedback["rating"])
+        )
+
+        tk.Label(
+            card,
+            text=stars,
+            font=("Arial", 22, "bold"),
+            fg="#D68910",
+            bg="white"
+        ).pack(
+            anchor="w",
+            padx=18,
+            pady=(15, 8)
+        )
+
+        # Feedback text
+
+        tk.Label(
+            card,
+            text=f'“{feedback["text"]}”',
+            font=("Arial", 13),
+            bg="white",
+            fg="#333333",
+            wraplength=600,
+            justify="left"
+        ).pack(
+            anchor="w",
+            padx=18,
+            pady=(5, 15)
         )
 
 
-# =========================
+# =========================================================
 # MAIN WINDOW
-# =========================
+# =========================================================
 
 root = tk.Tk()
 
-root.title("Rock Paper Scissors")
-root.geometry("850x700")
-root.resizable(False, False)
-root.configure(bg="#F4F4F4")
-
-
-# =========================
-# TITLE
-# =========================
-
-title_label = tk.Label(
-    root,
-    text="ROCK PAPER SCISSORS",
-    font=("Arial", 30, "bold"),
-    bg="#F4F4F4",
-    fg="#222222"
+root.title(
+    "Rock Paper Scissors"
 )
 
-title_label.pack(pady=(25, 5))
+root.geometry(
+    "900x720"
+)
+
+root.resizable(
+    False,
+    False
+)
+
+root.configure(
+    bg="#F4F4F4"
+)
 
 
-subtitle_label = tk.Label(
+# =========================================================
+# TITLE
+# =========================================================
+
+tk.Label(
+    root,
+    text="ROCK PAPER SCISSORS",
+    font=("Arial", 32, "bold"),
+    bg="#F4F4F4",
+    fg="#222222"
+).pack(
+    pady=(30, 5)
+)
+
+tk.Label(
     root,
     text="Choose your move!",
     font=("Arial", 14),
     bg="#F4F4F4",
     fg="#666666"
+).pack(
+    pady=5
 )
 
-subtitle_label.pack()
 
-
-# =========================
+# =========================================================
 # SCORE
-# =========================
+# =========================================================
 
 score_label = tk.Label(
     root,
@@ -348,188 +595,156 @@ score_label = tk.Label(
     bg="white",
     fg="#222222",
     padx=25,
-    pady=15
+    pady=18
 )
 
-score_label.pack(pady=15)
-
-
-# =========================
-# CHOICE
-# =========================
-
-player_choice_label = tk.Label(
-    root,
-    text="You chose: -",
-    font=("Arial", 14),
-    bg="#F4F4F4"
+score_label.pack(
+    pady=20
 )
 
-player_choice_label.pack(pady=4)
 
-
-computer_choice_label = tk.Label(
-    root,
-    text="Computer chose: -",
-    font=("Arial", 14),
-    bg="#F4F4F4"
-)
-
-computer_choice_label.pack(pady=4)
-
-
-# =========================
-# RESULT
-# =========================
-
-result_label = tk.Label(
-    root,
-    text="MAKE YOUR CHOICE!",
-    font=("Arial", 25, "bold"),
-    bg="#F4F4F4",
-    fg="#222222"
-)
-
-result_label.pack(pady=18)
-
-
-# =========================
+# =========================================================
 # GAME BUTTONS
-# =========================
+# =========================================================
 
 button_frame = tk.Frame(
     root,
     bg="#F4F4F4"
 )
 
-button_frame.pack(pady=10)
+button_frame.pack(
+    pady=20
+)
 
 
-rock_button = tk.Button(
+tk.Button(
     button_frame,
     text="🪨 ROCK",
     font=("Arial", 15, "bold"),
     width=15,
-    height=2,
+    height=3,
     command=lambda: play_game("Rock")
-)
-
-rock_button.grid(
+).grid(
     row=0,
     column=0,
-    padx=8
+    padx=10
 )
 
 
-paper_button = tk.Button(
+tk.Button(
     button_frame,
     text="📄 PAPER",
     font=("Arial", 15, "bold"),
     width=15,
-    height=2,
+    height=3,
     command=lambda: play_game("Paper")
-)
-
-paper_button.grid(
+).grid(
     row=0,
     column=1,
-    padx=8
+    padx=10
 )
 
 
-scissors_button = tk.Button(
+tk.Button(
     button_frame,
     text="✂ SCISSORS",
     font=("Arial", 15, "bold"),
     width=15,
-    height=2,
+    height=3,
     command=lambda: play_game("Scissors")
-)
-
-scissors_button.grid(
+).grid(
     row=0,
     column=2,
-    padx=8
+    padx=10
 )
 
 
-# =========================
-# RESET & EXIT
-# =========================
+# =========================================================
+# RESET + EXIT
+# =========================================================
 
 control_frame = tk.Frame(
     root,
     bg="#F4F4F4"
 )
 
-control_frame.pack(pady=15)
+control_frame.pack(
+    pady=20
+)
 
 
-reset_button = tk.Button(
+tk.Button(
     control_frame,
     text="RESET GAME",
     font=("Arial", 11, "bold"),
-    width=15,
+    width=18,
+    height=2,
     command=reset_game
-)
-
-reset_button.grid(
+).grid(
     row=0,
     column=0,
     padx=10
 )
 
 
-exit_button = tk.Button(
+tk.Button(
     control_frame,
     text="EXIT",
     font=("Arial", 11, "bold"),
-    width=15,
+    width=18,
+    height=2,
     command=exit_game
-)
-
-exit_button.grid(
+).grid(
     row=0,
     column=1,
     padx=10
 )
 
 
-# =========================
-# FEEDBACK BUTTON
-# =========================
+# =========================================================
+# FEEDBACK BUTTONS
+# =========================================================
 
-feedback_button = tk.Button(
+feedback_frame = tk.Frame(
     root,
-    text="GIVE FEEDBACK",
-    font=("Arial", 12, "bold"),
-    width=22,
-    height=2,
-    command=open_feedback
+    bg="#F4F4F4"
 )
 
-feedback_button.pack(pady=8)
+feedback_frame.pack(
+    pady=10
+)
 
 
-# =========================
-# VIEW FEEDBACK BUTTON
-# =========================
+tk.Button(
+    feedback_frame,
+    text="GIVE FEEDBACK",
+    font=("Arial", 11, "bold"),
+    width=20,
+    height=2,
+    command=give_feedback
+).grid(
+    row=0,
+    column=0,
+    padx=8
+)
 
-view_feedback_button = tk.Button(
-    root,
+
+tk.Button(
+    feedback_frame,
     text="VIEW FEEDBACK",
-    font=("Arial", 12, "bold"),
-    width=22,
+    font=("Arial", 11, "bold"),
+    width=20,
     height=2,
     command=view_feedback
+).grid(
+    row=0,
+    column=1,
+    padx=8
 )
 
-# Initially hidden
-# It appears after feedback is submitted.
 
-
-# =========================
-# START
-# =========================
+# =========================================================
+# START APPLICATION
+# =========================================================
 
 root.mainloop()
