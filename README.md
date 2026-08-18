@@ -37,5 +37,3 @@ Rock-Paper-Scissors/
 │
 └── README.md
 
-![HOME PAGE LOOK](front look./screenshots.png>
-)
